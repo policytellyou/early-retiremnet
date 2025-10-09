@@ -332,6 +332,9 @@
             
             // 计算延迟退休年龄
             calculateDelayBtn.addEventListener('click', function() {
+                // 清空之前的结果和步骤
+                resetStepsAndResults();
+                
                 if (!validateStep1()) return;
                 
                 calculateDelayedRetirement();
@@ -386,6 +389,26 @@
                 displayFinalResult();
                 finalResult.style.display = 'block';
             });
+            
+            // 清空步骤和结果
+            function resetStepsAndResults() {
+                delayResult.style.display = 'none';
+                flexibleRetirement.style.display = 'none';
+                finalResult.style.display = 'none';
+                
+                // 清空输入框
+                flexibleYearsInput.value = '';
+                flexibleMonthsInput.value = '';
+                
+                // 清空错误提示
+                document.getElementById('flexible-error').style.display = 'none';
+                
+                // 重置用户数据中与步骤相关的部分
+                userData.selectedFlexibleAge = { years: 0, months: 0 };
+                userData.flexibleRetirementDate = { year: 0, month: 0 };
+                userData.isFlexibleApplicable = false;
+                userData.isExceeded = false;
+            }
             
             // 验证第一步输入
             function validateStep1() {
