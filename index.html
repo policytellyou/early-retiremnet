@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹性提前退休年龄测算工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .gender-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .gender-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .gender-option input {
+            width: auto;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .result p {
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .step {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .info {
+            color: #3498db;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .flexible-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .flexible-input {
+            width: 80px;
+        }
+        
+        .flexible-range {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .warning {
+            color: #e67e22;
+            background-color: #fef5e7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #e67e22;
+        }
+        
+        .success {
+            color: #27ae60;
+            background-color: #eafaf1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .expired {
+            color: #c0392b;
+            background-color: #fdeaea;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #c0392b;
+        }
+        
+        .age-input-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .age-input-label {
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+        
+        .note {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>弹性提前退休年龄测算工具</h1>
+        
+        <div class="step">
+            <div class="step-title">第一步：基本信息</div>
+            <div class="form-group">
+                <label>性别</label>
+                <div class="gender-group">
+                    <div class="gender-option">
+                        <input type="radio" id="male" name="gender" value="male" checked>
+                        <label for="male">男性</label>
+                    </div>
+                    <div class="gender-option">
+                        <input type="radio" id="female" name="gender" value="female">
+                        <label for="female">女性</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="position-group" style="display: none;">
+                <label>岗位性质</label>
+                <select id="position">
+                    <option value="">请选择岗位性质</option>
+                    <option value="management">管理技术岗/灵活就业人员</option>
+                    <option value="non-management">非管理技术岗</option>
+                </select>
+                <div id="position-error" class="error">请选择岗位性质</div>
+            </div>
+            
+            <div class="form-group">
+                <label>出生年月</label>
+                <input type="month" id="birthdate" value="1970-01">
+                <div id="birthdate-error" class="error">请选择出生年月</div>
+            </div>
+            
+            <button id="calculate-delay" class="btn">计算延迟退休年龄</button>
+        </div>
+        
+        <div class="step" id="delay-result" style="display: none;">
+            <div class="step-title">第二步：延迟退休年龄计算结果</div>
+            <div id="delay-details"></div>
+        </div>
+        
+        <div class="step" id="flexible-retirement" style="display: none;">
+            <div class="step-title">第三步：选择弹性退休年龄</div>
+            <div id="flexible-info"></div>
+            <div class="form-group">
+                <label>请输入您希望退休的年龄</label>
+                <div class="age-input-container">
+                    <input type="number" id="flexible-years" class="flexible-input" min="50" max="65" step="1" placeholder="岁">
+                    <span class="age-input-label">岁</span>
+                    <input type="number" id="flexible-months" class="flexible-input" min="0" max="11" step="1" placeholder="月">
+                    <span class="age-input-label">个月</span>
+                </div>
+                <div id="flexible-error" class="error"></div>
+            </div>
+            <button id="calculate-benefit" class="btn">计算最低缴费年限</button>
+        </div>
+        
+        <div class="result" id="final-result">
+            <h2>测算结果</h2>
+            <div id="result-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const genderInputs = document.querySelectorAll('input[name="gender"]');
+            const positionGroup = document.getElementById('position-group');
+            const birthdateInput = document.getElementById('birthdate');
+            const calculateDelayBtn = document.getElementById('calculate-delay');
+            const delayResult = document.getElementById('delay-result');
+            const delayDetails = document.getElementById('delay-details');
+            const flexibleRetirement = document.getElementById('flexible-retirement');
+            const flexibleInfo = document.getElementById('flexible-info');
+            const flexibleYearsInput = document.getElementById('flexible-years');
+            const flexibleMonthsInput = document.getElementById('flexible-months');
+            const calculateBenefitBtn = document.getElementById('calculate-benefit');
+            const finalResult = document.getElementById('final-result');
+            const resultContent = document.getElementById('result-content');
+            
+            let userData = {
+                gender: 'male',
+                position: '',
+                birthdate: '1970-01',
+                originalRetirementAge: 0,
+                delayedRetirementAge: 0,
+                delayedRetirementTime: { years: 0, months: 0 },
+                delayedRetirementDate: { year: 0, month: 0 },
+                flexibleOptions: { minYears: 0, minMonths: 0, maxYears: 0, maxMonths: 0 },
+                selectedFlexibleAge: { years: 0, months: 0 },
+                flexibleRetirementDate: { year: 0, month: 0 },
+                isFlexibleApplicable: false,
+                isExceeded: false
+            };
+            
+            // 性别选择事件
+            genderInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    userData.gender = this.value;
+                    
+                    if (this.value === 'female') {
+                        positionGroup.style.display = 'block';
+                    } else {
+                        positionGroup.style.display = 'none';
+                        userData.position = '';
+                        document.getElementById('position').value = '';
+                    }
+                });
+            });
+            
+            // 岗位选择事件
+            document.getElementById('position').addEventListener('change', function() {
+                userData.position = this.value;
+                document.getElementById('position-error').style.display = 'none';
+            });
+            
+            // 出生年月选择事件
+            birthdateInput.addEventListener('change', function() {
+                userData.birthdate = this.value;
+                document.getElementById('birthdate-error').style.display = 'none';
+            });
+            
+            // 弹性退休年龄输入事件
+            flexibleYearsInput.addEventListener('input', function() {
+                document.getElementById('flexible-error').style.display = 'none';
+            });
+            
+            flexibleMonthsInput.addEventListener('input', function() {
+                document.getElementById('flexible-error').style.display = 'none';
+            });
+            
+            // 计算延迟退休年龄
+            calculateDelayBtn.addEventListener('click', function() {
+                if (!validateStep1()) return;
+                
+                calculateDelayedRetirement();
+                displayDelayResult();
+                
+                // 判断延迟退休时间是否早于今日
+                userData.isExceeded = isRetirementDateExceeded();
+                
+                if (userData.isExceeded) {
+                    // 已超过退休时间，直接显示结果
+                    displayFinalResult();
+                    finalResult.style.display = 'block';
+                    return;
+                }
+                
+                // 判断是否适用弹性提前退休
+                userData.isFlexibleApplicable = isFlexibleApplicable();
+                
+                if (userData.isFlexibleApplicable) {
+                    // 检查是否有有效的弹性退休年龄范围
+                    const hasValidFlexibleRange = hasValidFlexibleRetirementRange();
+                    
+                    if (hasValidFlexibleRange) {
+                        displayFlexibleOptions();
+                        flexibleRetirement.style.display = 'block';
+                    } else {
+                        // 没有有效的弹性退休年龄范围，直接显示结果
+                        userData.selectedFlexibleAge.years = userData.delayedRetirementAge;
+                        userData.selectedFlexibleAge.months = userData.delayedRetirementTime.months;
+                        calculateFlexibleRetirementDate();
+                        calculateMinimumPaymentPeriod();
+                        displayFinalResult();
+                        finalResult.style.display = 'block';
+                    }
+                } else {
+                    // 不适用弹性提前退休（2040年及以后），直接计算最低缴费年限
+                    userData.selectedFlexibleAge.years = userData.delayedRetirementAge;
+                    userData.selectedFlexibleAge.months = userData.delayedRetirementTime.months;
+                    calculateFlexibleRetirementDate();
+                    calculateMinimumPaymentPeriod();
+                    displayFinalResult();
+                    finalResult.style.display = 'block';
+                }
+            });
+            
+            // 计算最低缴费年限
+            calculateBenefitBtn.addEventListener('click', function() {
+                if (!validateFlexibleSelection()) return;
+                
+                calculateFlexibleRetirementDate();
+                calculateMinimumPaymentPeriod();
+                displayFinalResult();
+                finalResult.style.display = 'block';
+            });
+            
+            // 验证第一步输入
+            function validateStep1() {
+                let isValid = true;
+                
+                if (userData.gender === 'female' && !userData.position) {
+                    document.getElementById('position-error').style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (!userData.birthdate) {
+                    document.getElementById('birthdate-error').style.display = 'block';
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+            
+            // 验证弹性退休年龄选择
+            function validateFlexibleSelection() {
+                const flexibleYears = parseInt(flexibleYearsInput.value);
+                const flexibleMonths = parseInt(flexibleMonthsInput.value);
+                
+                if (isNaN(flexibleYears) || isNaN(flexibleMonths)) {
+                    document.getElementById('flexible-error').textContent = '请输入有效的退休年龄';
+                    document.getElementById('flexible-error').style.display = 'block';
+                    return false;
+                }
+                
+                if (flexibleMonths < 0 || flexibleMonths > 11) {
+                    document.getElementById('flexible-error').textContent = '月份必须在0到11之间';
+                    document.getElementById('flexible-error').style.display = 'block';
+                    return false;
+                }
+                
+                // 转换为总月份进行比较
+                const totalMonthsSelected = flexibleYears * 12 + flexibleMonths;
+                const totalMonthsMin = userData.flexibleOptions.minYears * 12 + userData.flexibleOptions.minMonths;
+                const totalMonthsMax = userData.flexibleOptions.maxYears * 12 + userData.flexibleOptions.maxMonths;
+                
+                if (totalMonthsSelected < totalMonthsMin || totalMonthsSelected > totalMonthsMax) {
+                    document.getElementById('flexible-error').textContent = 
+                        `退休年龄必须在${userData.flexibleOptions.minYears}岁${userData.flexibleOptions.minMonths}个月到${userData.flexibleOptions.maxYears}岁${userData.flexibleOptions.maxMonths}个月之间`;
+                    document.getElementById('flexible-error').style.display = 'block';
+                    return false;
+                }
+                
+                userData.selectedFlexibleAge.years = flexibleYears;
+                userData.selectedFlexibleAge.months = flexibleMonths;
+                document.getElementById('flexible-error').style.display = 'none';
+                return true;
+            }
+            
+            // 计算延迟退休年龄
+            function calculateDelayedRetirement() {
+                const birthdate = new Date(userData.birthdate);
+                const birthYear = birthdate.getFullYear();
+                const birthMonth = birthdate.getMonth() + 1; // 月份从0开始，需要+1
+                
+                // 确定原法定退休年龄
+                if (userData.gender === 'male') {
+                    userData.originalRetirementAge = 60;
+                } else {
+                    if (userData.position === 'management') {
+                        userData.originalRetirementAge = 55;
+                    } else {
+                        userData.originalRetirementAge = 50;
+                    }
+                }
+                
+                // 计算延迟退休年龄
+                let delayedMonths = 0;
+                
+                if (userData.gender === 'male') {
+                    // 男性：原法定退休年龄60周岁
+                    if (birthYear < 1965 || (birthYear === 1965 && birthMonth === 1)) {
+                        delayedMonths = 0;
+                    } else if (birthYear <= 1976) {
+                        const startDate = new Date(1965, 0, 1); // 1965年1月
+                        const monthsDiff = (birthYear - startDate.getFullYear()) * 12 + (birthMonth - 1);
+                        delayedMonths = Math.floor(monthsDiff / 4) + 1;
+                    } else {
+                        delayedMonths = 36; // 1977年1月及以后，延迟36个月（3年）
+                    }
+                } else if (userData.position === 'management') {
+                    // 女性管理/技术岗：原法定退休年龄55周岁
+                    if (birthYear < 1970 || (birthYear === 1970 && birthMonth === 1)) {
+                        delayedMonths = 0;
+                    } else if (birthYear <= 1981) {
+                        const startDate = new Date(1970, 0, 1); // 1970年1月
+                        const monthsDiff = (birthYear - startDate.getFullYear()) * 12 + (birthMonth - 1);
+                        delayedMonths = Math.floor(monthsDiff / 4) + 1;
+                    } else {
+                        delayedMonths = 36; // 1982年1月及以后，延迟36个月（3年）
+                    }
+                } else {
+                    // 女性非管理技术岗：原法定退休年龄50周岁
+                    if (birthYear < 1975 || (birthYear === 1975 && birthMonth === 1)) {
+                        delayedMonths = 0;
+                    } else if (birthYear <= 1984) {
+                        const startDate = new Date(1975, 0, 1); // 1975年1月
+                        const monthsDiff = (birthYear - startDate.getFullYear()) * 12 + (birthMonth - 1);
+                        delayedMonths = Math.floor(monthsDiff / 2) + 1;
+                    } else {
+                        delayedMonths = 60; // 1985年1月及以后，延迟60个月（5年）
+                    }
+                }
+                
+                // 计算延迟退休年龄（年+月）
+                userData.delayedRetirementAge = userData.originalRetirementAge + Math.floor(delayedMonths / 12);
+                userData.delayedRetirementTime = {
+                    years: Math.floor(delayedMonths / 12),
+                    months: delayedMonths % 12
+                };
+                
+                // 计算延迟退休具体时间
+                calculateDelayedRetirementDate(delayedMonths);
+                
+                // 计算弹性退休年龄范围
+                calculateFlexibleRange();
+            }
+            
+            // 计算延迟退休具体日期
+            function calculateDelayedRetirementDate(delayedMonths) {
+                const birthdate = new Date(userData.birthdate);
+                const originalRetirementYear = birthdate.getFullYear() + userData.originalRetirementAge;
+                const originalRetirementMonth = birthdate.getMonth() + 1;
+                
+                // 计算延迟后的退休年份和月份
+                let delayedYear = originalRetirementYear;
+                let delayedMonth = originalRetirementMonth + delayedMonths;
+                
+                while (delayedMonth > 12) {
+                    delayedYear += 1;
+                    delayedMonth -= 12;
+                }
+                
+                userData.delayedRetirementDate = {
+                    year: delayedYear,
+                    month: delayedMonth
+                };
+            }
+            
+            // 计算弹性退休年龄范围
+            function calculateFlexibleRange() {
+                // 弹性提前退休时间z的范围为：【延迟退休时间-3年】≤ z，且【原法定退休年龄时间 ≤ z】
+                const minFlexibleTotalMonths = (userData.delayedRetirementAge - 3) * 12 + userData.delayedRetirementTime.months;
+                const originalRetirementTotalMonths = userData.originalRetirementAge * 12;
+                
+                const finalMinTotalMonths = Math.max(minFlexibleTotalMonths, originalRetirementTotalMonths);
+                
+                userData.flexibleOptions = {
+                    minYears: Math.floor(finalMinTotalMonths / 12),
+                    minMonths: finalMinTotalMonths % 12,
+                    maxYears: userData.delayedRetirementAge,
+                    maxMonths: userData.delayedRetirementTime.months
+                };
+            }
+            
+            // 判断是否适用弹性提前退休
+            function isFlexibleApplicable() {
+                // 弹性提前退休适用范围：延迟退休时间为2025年1月1日至2039年12月31日的人员
+                const delayedYear = userData.delayedRetirementDate.year;
+                return delayedYear >= 2025 && delayedYear <= 2039;
+            }
+            
+            // 判断是否有有效的弹性退休年龄范围
+            function hasValidFlexibleRetirementRange() {
+                const minTotalMonths = userData.flexibleOptions.minYears * 12 + userData.flexibleOptions.minMonths;
+                const maxTotalMonths = userData.flexibleOptions.maxYears * 12 + userData.flexibleOptions.maxMonths;
+                
+                // 如果最小弹性退休年龄大于等于最大弹性退休年龄，则没有有效范围
+                return minTotalMonths < maxTotalMonths;
+            }
+            
+            // 判断延迟退休时间是否早于今日
+            function isRetirementDateExceeded() {
+                const today = new Date();
+                const retirementDate = new Date(userData.delayedRetirementDate.year, userData.delayedRetirementDate.month - 1, 1);
+                
+                return retirementDate < today;
+            }
+            
+            // 计算弹性退休具体日期
+            function calculateFlexibleRetirementDate() {
+                const birthdate = new Date(userData.birthdate);
+                const totalMonths = userData.selectedFlexibleAge.years * 12 + userData.selectedFlexibleAge.months;
+                
+                let flexibleYear = birthdate.getFullYear();
+                let flexibleMonth = birthdate.getMonth() + 1 + totalMonths;
+                
+                while (flexibleMonth > 12) {
+                    flexibleYear += 1;
+                    flexibleMonth -= 12;
+                }
+                
+                userData.flexibleRetirementDate = {
+                    year: flexibleYear,
+                    month: flexibleMonth
+                };
+            }
+            
+            // 显示延迟退休结果
+            function displayDelayResult() {
+                let genderText = userData.gender === 'male' ? '男' : '女';
+                let positionText = '';
+                if (userData.gender === 'female') {
+                    positionText = userData.position === 'management' ? '管理技术岗/灵活就业人员' : '非管理技术岗';
+                }
+                
+                delayDetails.innerHTML = `
+                    <p>您的性别：<span class="highlight">${genderText}</span></p>
+                    ${userData.gender === 'female' ? `<p>岗位性质：<span class="highlight">${positionText}</span></p>` : ''}
+                    <p>出生年月：<span class="highlight">${userData.birthdate}</span></p>
+                    <p>原法定退休年龄：<span class="highlight">${userData.originalRetirementAge}周岁</span></p>
+                    <p>延迟退休年龄：<span class="highlight">${userData.delayedRetirementAge}岁${userData.delayedRetirementTime.months}个月</span></p>
+                    <p>延迟退休时间：<span class="highlight">${userData.delayedRetirementDate.year}年${userData.delayedRetirementDate.month}月</span></p>
+                `;
+                
+                delayResult.style.display = 'block';
+            }
+            
+            // 显示弹性退休选项
+            function displayFlexibleOptions() {
+                flexibleInfo.innerHTML = `
+                    <div class="success">
+                        <p>您的延迟退休时间在2025年1月至2039年12月之间，适用弹性提前退休政策。</p>
+                        <p>您可以选择在<span class="highlight">${userData.flexibleOptions.minYears}岁${userData.flexibleOptions.minMonths}个月</span>到<span class="highlight">${userData.flexibleOptions.maxYears}岁${userData.flexibleOptions.maxMonths}个月</span>之间退休。</p>
+                    </div>
+                `;
+                
+                // 设置默认值为最小弹性退休年龄
+                flexibleYearsInput.value = userData.flexibleOptions.minYears;
+                flexibleMonthsInput.value = userData.flexibleOptions.minMonths;
+            }
+            
+            // 计算最低缴费年限
+            function calculateMinimumPaymentPeriod() {
+                const retirementYear = userData.isFlexibleApplicable ? 
+                    userData.flexibleRetirementDate.year : 
+                    userData.delayedRetirementDate.year;
+                
+                // 根据退休年份确定最低缴费年限
+                if (retirementYear <= 2029) {
+                    userData.minimumPaymentPeriod = { years: 15, months: 0 };
+                } else if (retirementYear >= 2040) {
+                    userData.minimumPaymentPeriod = { years: 20, months: 0 };
+                } else {
+                    // 2030-2039年，每年增加6个月
+                    const additionalMonths = (retirementYear - 2030) * 6;
+                    userData.minimumPaymentPeriod = {
+                        years: 15 + Math.floor(additionalMonths / 12),
+                        months: additionalMonths % 12
+                    };
+                }
+            }
+            
+            // 显示最终结果
+            function displayFinalResult() {
+                let genderText = userData.gender === 'male' ? '男' : '女';
+                let positionText = '';
+                if (userData.gender === 'female') {
+                    positionText = userData.position === 'management' ? '管理技术岗/灵活就业人员' : '非管理技术岗';
+                }
+                
+                let resultHTML = `
+                    <p>您好，您是属于原法定退休年龄为<span class="highlight">${userData.originalRetirementAge}周岁</span>的<span class="highlight">${genderText}</span>职工${userData.gender === 'female' ? `（${positionText}）` : ''}，</p>
+                    <p>您的延迟退休年龄为<span class="highlight">${userData.delayedRetirementAge}岁${userData.delayedRetirementTime.months}个月</span>，</p>
+                    <p>延迟退休时间为<span class="highlight">${userData.delayedRetirementDate.year}年${userData.delayedRetirementDate.month}月</span>，</p>
+                `;
+                
+                if (userData.isExceeded) {
+                    resultHTML += `
+                        <div class="expired">
+                            <p>您已超过延迟退休时间，可直接办理退休手续领取养老金。</p>
+                        </div>
+                    `;
+                } else if (userData.isFlexibleApplicable) {
+                    // 检查是否有有效的弹性退休年龄范围
+                    const hasValidRange = hasValidFlexibleRetirementRange();
+                    
+                    if (hasValidRange) {
+                        resultHTML += `
+                            <p>您的弹性退休年龄范围为<span class="highlight">${userData.flexibleOptions.minYears}岁${userData.flexibleOptions.minMonths}个月-${userData.flexibleOptions.maxYears}岁${userData.flexibleOptions.maxMonths}个月</span>，</p>
+                            <p>您选择<span class="highlight">${userData.selectedFlexibleAge.years}岁${userData.selectedFlexibleAge.months}个月</span>退休，也即<span class="highlight">${userData.flexibleRetirementDate.year}年${userData.flexibleRetirementDate.month}月</span>，</p>
+                            <p>最低缴费年限为<span class="highlight">${userData.minimumPaymentPeriod.years}年${userData.minimumPaymentPeriod.months}个月</span>。</p>
+                        `;
+                    } else {
+                        resultHTML += `
+                            <div class="warning">
+                                <p>您的弹性退休年龄范围无效，无法选择弹性退休。</p>
+                                <p>您的退休时间为<span class="highlight">${userData.delayedRetirementDate.year}年${userData.delayedRetirementDate.month}月</span>，</p>
+                                <p>最低缴费年限为<span class="highlight">${userData.minimumPaymentPeriod.years}年${userData.minimumPaymentPeriod.months}个月</span>。</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    resultHTML += `
+                        <div class="warning">
+                            <p>您的延迟退休时间在2040年及以后，不适用弹性提前退休政策。</p>
+                            <p>您的退休时间为<span class="highlight">${userData.delayedRetirementDate.year}年${userData.delayedRetirementDate.month}月</span>，</p>
+                            <p>最低缴费年限为<span class="highlight">${userData.minimumPaymentPeriod.years}年${userData.minimumPaymentPeriod.months}个月</span>。</p>
+                        </div>
+                    `;
+                }
+                
+                resultContent.innerHTML = resultHTML;
+            }
+        });
+    </script>
+</body>
+</html>
