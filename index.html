@@ -645,39 +645,40 @@
                 flexibleMonthsInput.value = userData.flexibleOptions.minMonths;
             }
             
-        // 计算最低缴费年限
-function calculateMinimumPaymentPeriod() {
-    const retirementYear = userData.isFlexibleApplicable ? 
-        userData.flexibleRetirementDate.year : 
-        userData.delayedRetirementDate.year;
-    
-    // 根据退休年份确定最低缴费年限
-    if (retirementYear <= 2029) {
-        userData.minimumPaymentPeriod = { years: 15, months: 0 };
-    } else if (retirementYear >= 2040) {
-        userData.minimumPaymentPeriod = { years: 20, months: 0 };
-    } else {
-        // 2030-2039年，每年增加6个月
-        // 从2029年的15年开始，每年增加6个月
-        // 2030年：15年 + 6个月 = 15年6个月
-        // 2031年：15年 + 12个月 = 16年
-        // 2032年：15年 + 18个月 = 16年6个月
-        // 2033年：15年 + 24个月 = 17年
-        // 2034年：15年 + 30个月 = 17年6个月
-        // 2035年：15年 + 36个月 = 18年 ✅
-        // 2036年：15年 + 42个月 = 18年6个月
-        // 2037年：15年 + 48个月 = 19年
-        // 2038年：15年 + 54个月 = 19年6个月
-        // 2039年：15年 + 60个月 = 20年
-        
-        const yearsFrom2029 = retirementYear - 2029;
-        const totalAdditionalMonths = yearsFrom2029 * 6;
-        
-        userData.minimumPaymentPeriod = {
-            years: 15 + Math.floor(totalAdditionalMonths / 12),
-            months: totalAdditionalMonths % 12
-        };
-    }
+            // 计算最低缴费年限 - 修正版
+            function calculateMinimumPaymentPeriod() {
+                const retirementYear = userData.isFlexibleApplicable ? 
+                    userData.flexibleRetirementDate.year : 
+                    userData.delayedRetirementDate.year;
+                
+                // 根据退休年份确定最低缴费年限
+                if (retirementYear <= 2029) {
+                    userData.minimumPaymentPeriod = { years: 15, months: 0 };
+                } else if (retirementYear >= 2040) {
+                    userData.minimumPaymentPeriod = { years: 20, months: 0 };
+                } else {
+                    // 2030-2039年，每年增加6个月
+                    // 从2029年的15年开始，每年增加6个月
+                    // 2030年：15年 + 6个月 = 15年6个月
+                    // 2031年：15年 + 12个月 = 16年
+                    // 2032年：15年 + 18个月 = 16年6个月
+                    // 2033年：15年 + 24个月 = 17年
+                    // 2034年：15年 + 30个月 = 17年6个月
+                    // 2035年：15年 + 36个月 = 18年 ✅
+                    // 2036年：15年 + 42个月 = 18年6个月
+                    // 2037年：15年 + 48个月 = 19年
+                    // 2038年：15年 + 54个月 = 19年6个月
+                    // 2039年：15年 + 60个月 = 20年
+                    
+                    const yearsFrom2029 = retirementYear - 2029;
+                    const totalAdditionalMonths = yearsFrom2029 * 6;
+                    
+                    userData.minimumPaymentPeriod = {
+                        years: 15 + Math.floor(totalAdditionalMonths / 12),
+                        months: totalAdditionalMonths % 12
+                    };
+                }
+            }
             
             // 显示最终结果
             function displayFinalResult() {
